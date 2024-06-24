@@ -6,6 +6,7 @@ import net.javaguides.employeeservice.dto.APIResponseDto;
 import net.javaguides.employeeservice.dto.DepartmentDto;
 import net.javaguides.employeeservice.dto.EmployeeDto;
 import net.javaguides.employeeservice.entity.Employee;
+import net.javaguides.employeeservice.kafka.KafkaConsumer;
 import net.javaguides.employeeservice.mapper.EmployeeMapper;
 import net.javaguides.employeeservice.repository.EmployeeRepository;
 import org.apache.coyote.Response;
@@ -24,6 +25,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private KafkaConsumer kafkaConsumer;
 
     // private RestTemplate restTemplate;
     // private WebClient webClient;
@@ -66,15 +70,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .block(); // block is used to make synchronous calls
         */
 
-                                     /* Using Spring feign client */
-
-        DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
-
         /*OrganizationDto organizationDto = webClient.get()
                 .uri("http://localhost:8083/api/organizations/" + employee.getOrganizationCode())
                 .retrieve()
                 .bodyToMono(OrganizationDto.class)
                 .block();*/
+
+                                     /* Using Spring feign client */
+
+        apiClient.getDepartment(employee.getDepartmentCode());
+        DepartmentDto departmentDto = kafkaConsumer.getDepartmentJson();
 
         EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
 
